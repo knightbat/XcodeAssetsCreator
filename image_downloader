@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #temp arry of images
-array=(https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png https://www.freebsd.org/logo/logo-full.png https://www.gimp.org/images/frontpage/wilber-big.png)
+array=(https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png https://www.freebsd.org/logo/logo-full.png https://www.gimp.org/images/frontpage/wilber-big.png https://upload.wikimedia.org/wikipedia/en/5/55/Bsd_daemon.jpg)
 
 #recreate folder to store image sets
 rm -rf Assets.xcassets
@@ -18,9 +18,10 @@ for i in "${array[@]}"
 # get file
   curl -O -# $url
 # get file name
-  filename=$(echo $(basename "$url") | cut -f 1 -d '.')
+  fullname=$(basename "$url")
+  filename=$(echo $fullname | cut -f 1 -d '.')
   echo "filename $filename"
-
+mv $fullname $filename.png
 # get image size
   width3=$(identify -ping -format '%w' $filename.png)
   height3=$(identify -ping -format '%h' $filename.png)
@@ -39,9 +40,9 @@ for i in "${array[@]}"
 # create 3x image
   cp $filename.png $filename@3x.png
 # create 2x image
-  convert $filename.png    -resize $height2x$width2^ $filename@2.png
+  convert $filename.png    -resize $height2x$width2\> $filename@2.png
 # create 1x image
-convert $filename.png    -resize $heightx$width^ $filename.png
+  convert $filename.png    -resize $heightx$width\> $filename.png
 
 #move to image set folder
   mkdir temp
