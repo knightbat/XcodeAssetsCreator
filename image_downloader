@@ -4,7 +4,7 @@
 array=(https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png https://www.freebsd.org/logo/logo-full.png https://www.gimp.org/images/frontpage/wilber-big.png)
 
 #recreate folder to store image sets
-rm Assets.xcassets
+rm -rf Assets.xcassets
 mkdir Assets.xcassets
 
 # loop
