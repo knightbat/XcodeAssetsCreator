@@ -1,11 +1,20 @@
 #!/bin/bash
 
 #temp arry of images
-array=(https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png https://www.freebsd.org/logo/logo-full.png https://www.gimp.org/images/frontpage/wilber-big.png https://upload.wikimedia.org/wikipedia/en/5/55/Bsd_daemon.jpg)
+
+# data=$(curl -# "http://www.omdbapi.com/?s=batman&r=json")
+# echo $data
+string=$"https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png
+https://www.freebsd.org/logo/logo-full.png
+https://www.gimp.org/images/frontpage/wilber-big.png
+https://upload.wikimedia.org/wikipedia/en/5/55/Bsd_daemon.jpg"
+
+IFS=$'\n' read -rd '' -a array <<< "$string"
+
 
 #recreate folder to store image sets
-rm -rf Assets.xcassets
-mkdir Assets.xcassets
+# rm -rf Assets.xcassets
+# mkdir Assets.xcassets
 
 # loop
 for i in "${array[@]}"
@@ -21,7 +30,7 @@ for i in "${array[@]}"
   fullname=$(basename "$url")
   filename=$(echo $fullname | cut -f 1 -d '.')
   echo "filename $filename"
-mv $fullname $filename.png
+  mv $fullname $filename.png
 # get image size
   width3=$(identify -ping -format '%w' $filename.png)
   height3=$(identify -ping -format '%h' $filename.png)
@@ -51,5 +60,8 @@ mv $fullname $filename.png
 
 done
 
-# copy all image set to xcassets
-mv *.imageset Assets.xcassets
+#find path of Assets.xcassets
+path=$(find output -path '*.xcassets')
+
+# copy all image set to xcassets and delete temp files
+cp -Rf *.imageset "$path" && rm -r *.imageset
