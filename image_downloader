@@ -1,16 +1,15 @@
 #!/bin/bash
 
-#temp arry of images
+if ! [[ $(which jq) ]] ; then
+  echo "installing dependency"
+  brew install jq
+fi
 
-# data=$(curl -# "http://www.omdbapi.com/?s=batman&r=json")
-# echo $data
-string=$"https://upload.wikimedia.org/wikipedia/commons/a/af/Tux.png
-https://www.freebsd.org/logo/logo-full.png
-https://www.gimp.org/images/frontpage/wilber-big.png
-https://upload.wikimedia.org/wikipedia/en/5/55/Bsd_daemon.jpg"
+data_url="json_data_url"
+json=$(curl -# $data_url)
+string=$(echo ${json} | jq '.data.products[].image'| tr -d '"')
 
-IFS=$'\n' read -rd '' -a array <<< "$string"
-
+read -a array <<< $string
 
 #recreate folder to store image sets
 # rm -rf Assets.xcassets
@@ -31,6 +30,7 @@ for i in "${array[@]}"
   filename=$(echo $fullname | cut -f 1 -d '.')
   echo "filename $filename"
   mv $fullname $filename.png
+
 # get image size
   width3=$(identify -ping -format '%w' $filename.png)
   height3=$(identify -ping -format '%h' $filename.png)
@@ -57,7 +57,6 @@ for i in "${array[@]}"
   mkdir temp
   mv $filename* temp
   mv temp $filename.imageset
-
 done
 
 #find path of Assets.xcassets
