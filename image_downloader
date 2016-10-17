@@ -7,6 +7,11 @@ fi
 
 data_url="json_data_url"
 json=$(curl -# $data_url)
+
+#######################################################################################################
+####################################### images ########################################################
+#######################################################################################################
+
 string=$(echo ${json} | jq '.data.products[].image'| tr -d '"')
 
 read -a array <<< $string
@@ -51,7 +56,7 @@ for i in "${array[@]}"
 # create 2x image
   convert $filename.png    -resize $height2x$width2\> $filename@2.png
 # create 1x image
-  convert $filename.png    -resize $heightx$width\> $filename.png
+  convert $filename.png   -resize $heightx$width\> $filename.png
 
 #move to image set folder
   mkdir temp
@@ -64,3 +69,58 @@ path=$(find output -path '*.xcassets')
 
 # copy all image set to xcassets and delete temp files
 cp -Rf *.imageset "$path" && rm -r *.imageset
+
+#######################################################################################################
+
+
+#######################################################################################################
+##################################### App Icon ########################################################
+#######################################################################################################
+
+curl -O -# $icon_url
+icon=$(basename "$icon_url")
+
+convert $icon    -resize 29x29\> Icon-29.0@1x.png
+convert $icon    -resize 58x58\> Icon-29.0@2x.png
+convert $icon    -resize 87x87\> Icon-29.0@3x.png
+convert $icon    -resize 40x40\> Icon-40.0@1x.png
+convert $icon    -resize 80x80\> Icon-40.0@2x.png
+convert $icon    -resize 120x120\> Icon-40.0@3x.png
+convert $icon    -resize 50x50\> Icon-50.0@1x.png
+convert $icon    -resize 100x100\> Icon-50.0@2x.png
+convert $icon    -resize 57x57\> Icon-57.0@1x.png
+convert $icon    -resize 114x114\> Icon-57.0@2x.png
+convert $icon    -resize 120x120\> Icon-60.0@2x.png
+convert $icon    -resize 180x180\> Icon-60.0@3x.png
+convert $icon    -resize 72x72\> Icon-72.0@1x.png
+convert $icon    -resize 144x144\> Icon-72.0@2x.png
+convert $icon    -resize 76x76\> Icon-76.0@1x.png
+convert $icon    -resize 152x152\> Icon-76.0@2x.png
+convert $icon    -resize 167x167\> Icon-83.5@2x.png
+
+path=$(find output -path '*.appiconset')
+mv Icon-* "$path"
+
+#######################################################################################################
+
+
+
+#######################################################################################################
+################################ Localization #########################################################
+#######################################################################################################
+
+string=$(curl -# $localization_url)
+
+echo "//$(date)" > Localizable.strings
+echo $string >> Localizable.strings
+
+# path=$(find output -path '*Base.lproj/Localizable.strings')
+#
+# if ! [[ $path ]]; then
+  path=$(find output -path '*Localizable.strings')
+# fi
+echo "path $path"
+mv Localizable.strings "$path"
+
+
+#######################################################################################################
