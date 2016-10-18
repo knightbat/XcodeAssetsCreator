@@ -1,126 +1,131 @@
 #!/bin/bash
 
-if ! [[ $(which jq) ]] ; then
-  echo "installing dependency"
-  brew install jq
-fi
+#check url is valid
 
-data_url="json_data_url"
-json=$(curl -# $data_url)
+data_url=$1
+regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+
+if [[ $1 =~ $regex ]] ; then
+
+  if ! [[ $(which jq) ]] ; then
+    echo "installing dependency"
+    brew install jq
+  fi
+
+  echo "using url $data_url"
+
+  json=$(curl -# $data_url)
 
 #######################################################################################################
 ####################################### images ########################################################
 #######################################################################################################
 
-string=$(echo ${json} | jq '.data.products[].image'| tr -d '"')
+  string=$(echo ${json} | jq '.images[]'| tr -d '"')
 
-read -a array <<< $string
+  read -a array <<< $string
 
-#recreate folder to store image sets
-# rm -rf Assets.xcassets
-# mkdir Assets.xcassets
+  # loop
+  for i in "${array[@]}"
+    do
 
-# loop
-for i in "${array[@]}"
-  do
+    echo "image downloading from $i"
 
-  echo "downloading from $i"
+  # get url
+    url=$i
+  # get file
+    curl -O -# $url
+  # get file name
+    fullname=$(basename "$url")
+    filename=$(echo $fullname | cut -f 1 -d '.')
+    echo "filename $filename"
+    mv $fullname $filename.png
 
-# get url
-  url=$i
-# get file
-  curl -O -# $url
-# get file name
-  fullname=$(basename "$url")
-  filename=$(echo $fullname | cut -f 1 -d '.')
-  echo "filename $filename"
-  mv $fullname $filename.png
+  # get image size
+    width3=$(identify -ping -format '%w' $filename.png)
+    height3=$(identify -ping -format '%h' $filename.png)
 
-# get image size
-  width3=$(identify -ping -format '%w' $filename.png)
-  height3=$(identify -ping -format '%h' $filename.png)
-  echo "size $width3 $height3"
+  # calculate size for 2x image
+    width2=$(($width3*2/3))
+    height2=$(($height3*2/3))
 
-# calculate size for 2x image
-  width2=$(($width3*2/3))
-  height2=$(($height3*2/3))
-  echo "size $width2 $height2"
+  # calculate size for 1x image
+    width=$(($width3*1/3))
+    height=$(($height3*1/3))
 
-# calculate size for 1x image
-  width=$(($width3*1/3))
-  height=$(($height3*1/3))
-  echo "size $width $height"
+  # create 3x image
+    cp $filename.png $filename@3x.png
+  # create 2x image
+    convert $filename.png    -resize $height2x$width2\> $filename@2.png
+  # create 1x image
+    convert $filename.png   -resize $heightx$width\> $filename.png
 
-# create 3x image
-  cp $filename.png $filename@3x.png
-# create 2x image
-  convert $filename.png    -resize $height2x$width2\> $filename@2.png
-# create 1x image
-  convert $filename.png   -resize $heightx$width\> $filename.png
+  #move to image set folder
+    mkdir temp
+    mv $filename* temp
+    mv temp $filename.imageset
+  done
 
-#move to image set folder
-  mkdir temp
-  mv $filename* temp
-  mv temp $filename.imageset
-done
+  #find path of Assets.xcassets
+  path=$(find output -path '*.xcassets')
 
-#find path of Assets.xcassets
-path=$(find output -path '*.xcassets')
-
-# copy all image set to xcassets and delete temp files
-cp -Rf *.imageset "$path" && rm -r *.imageset
-
-#######################################################################################################
+  # copy all image set to xcassets and delete temp files
+  cp -Rf *.imageset "$path" && rm -r *.imageset
 
 
 #######################################################################################################
 ##################################### App Icon ########################################################
 #######################################################################################################
 
-curl -O -# $icon_url
-icon=$(basename "$icon_url")
+  app_icon_url=$(echo ${json} | jq '.AppIcon'| tr -d '"')
+  echo "App icon downloading from $app_icon_url"
+  curl -O -# $app_icon_url
+  icon=$(basename "$app_icon_url")
 
-convert $icon    -resize 29x29\> Icon-29.0@1x.png
-convert $icon    -resize 58x58\> Icon-29.0@2x.png
-convert $icon    -resize 87x87\> Icon-29.0@3x.png
-convert $icon    -resize 40x40\> Icon-40.0@1x.png
-convert $icon    -resize 80x80\> Icon-40.0@2x.png
-convert $icon    -resize 120x120\> Icon-40.0@3x.png
-convert $icon    -resize 50x50\> Icon-50.0@1x.png
-convert $icon    -resize 100x100\> Icon-50.0@2x.png
-convert $icon    -resize 57x57\> Icon-57.0@1x.png
-convert $icon    -resize 114x114\> Icon-57.0@2x.png
-convert $icon    -resize 120x120\> Icon-60.0@2x.png
-convert $icon    -resize 180x180\> Icon-60.0@3x.png
-convert $icon    -resize 72x72\> Icon-72.0@1x.png
-convert $icon    -resize 144x144\> Icon-72.0@2x.png
-convert $icon    -resize 76x76\> Icon-76.0@1x.png
-convert $icon    -resize 152x152\> Icon-76.0@2x.png
-convert $icon    -resize 167x167\> Icon-83.5@2x.png
+  convert $icon    -resize 40x40\> Icon-20.0@2x.png
+  convert $icon    -resize 60x60\> Icon-20.0@3x.png
+  convert $icon    -resize 29x29\> Icon-29.0@1x.png
+  convert $icon    -resize 58x58\> Icon-29.0@2x.png
+  convert $icon    -resize 87x87\> Icon-29.0@3x.png
+  convert $icon    -resize 40x40\> Icon-40.0@1x.png
+  convert $icon    -resize 80x80\> Icon-40.0@2x.png
+  convert $icon    -resize 120x120\> Icon-40.0@3x.png
+  convert $icon    -resize 50x50\> Icon-50.0@1x.png
+  convert $icon    -resize 100x100\> Icon-50.0@2x.png
+  convert $icon    -resize 57x57\> Icon-57.0@1x.png
+  convert $icon    -resize 114x114\> Icon-57.0@2x.png
+  convert $icon    -resize 120x120\> Icon-60.0@2x.png
+  convert $icon    -resize 180x180\> Icon-60.0@3x.png
+  convert $icon    -resize 72x72\> Icon-72.0@1x.png
+  convert $icon    -resize 144x144\> Icon-72.0@2x.png
+  convert $icon    -resize 76x76\> Icon-76.0@1x.png
+  convert $icon    -resize 152x152\> Icon-76.0@2x.png
+  convert $icon    -resize 167x167\> Icon-83.5@2x.png
 
-path=$(find output -path '*.appiconset')
-mv Icon-* "$path"
-
-#######################################################################################################
-
+  path=$(find output -path '*.appiconset')
+  mv Icon-* "$path"
 
 
 #######################################################################################################
 ################################ Localization #########################################################
 #######################################################################################################
 
-string=$(curl -# $localization_url)
+  localization_url=$(echo ${json} | jq '.languages[0].ios'| tr -d '"')
+  echo "Language downloading from $localization_url"
+  string=$(curl -L -# $localization_url)
 
-echo "//$(date)" > Localizable.strings
-echo $string >> Localizable.strings
+  echo "//created on $(date)" > Localizable.strings
+  echo $string >> Localizable.strings
 
-# path=$(find output -path '*Base.lproj/Localizable.strings')
-#
-# if ! [[ $path ]]; then
-  path=$(find output -path '*Localizable.strings')
-# fi
-echo "path $path"
-mv Localizable.strings "$path"
-
+  # path=$(find output -path '*Base.lproj/Localizable.strings')
+  #
+  # if ! [[ $path ]]; then
+    path=$(find output -path '*Localizable.strings')
+  # fi
+  echo "path $path"
+  mv Localizable.strings "$path"
 
 #######################################################################################################
+
+else
+    echo "url not valid"
+fi
