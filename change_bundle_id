@@ -1,0 +1,12 @@
+#!/bin/bash
+
+path=$(find output -path '*project.pbxproj' | grep -v Pods)
+bundle_id=$(cat "$path" | grep PRODUCT_BUNDLE_IDENTIFIER | sort -u)
+product_name=$(cat "$path" | grep PRODUCT_NAME | sort -u)
+
+replace_bundle_id="PRODUCT_BUNDLE_IDENTIFIER = com.test.test;"
+replace_product_name="PRODUCT_NAME = \"Test product\";"
+
+
+sed -i -e 's/'"$bundle_id"'/'"$replace_bundle_id"'/g' "$path"
+sed -i -e 's/'"$product_name"'/'"$replace_product_name"'/g' "$path"

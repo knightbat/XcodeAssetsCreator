@@ -1,0 +1,12 @@
+#!/bin/bash
+
+hexinput=`echo $1 | tr '[:lower:]' '[:upper:]'` #uppercaseing
+a=`echo $hexinput | cut -c-2`
+b=`echo $hexinput | cut -c3-4`
+c=`echo $hexinput | cut -c5-6`
+
+r=`echo "ibase=16; $a" | bc`
+g=`echo "ibase=16; $b" | bc`
+b=`echo "ibase=16; $c" | bc`
+
+echo "[UIColor colorWithRed:$r/255 green:$g/255 blue:$b/255 alpha:1.0];"
