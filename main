@@ -1,0 +1,33 @@
+#!/bin/bash
+
+
+#check url is valid
+
+data_url=$1
+regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]'
+
+if [[ $1 =~ $regex ]] ; then
+
+    if ! [[ $(which jq) ]] ; then
+      echo "installing dependency"
+      brew install jq
+      sudo gem install xcodeproj
+    fi
+
+    echo "using url $data_url"
+    json=$(curl -# $data_url)
+
+    #call image downloader
+    image_string=$(echo ${json} | jq '.images[]'| tr -d '"')
+    app_icon_string=$(echo ${json} | jq '.AppIcon'| tr -d '"')
+
+    # ./image_downloader "$image_string" "$app_icon_string"
+
+    #call image localization
+    ./localization "$json"
+
+else
+
+    echo "url not valid"
+
+fi
