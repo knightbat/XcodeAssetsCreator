@@ -1,6 +1,6 @@
 #!/bin/bash
 
-path=$(find output -path '*project.pbxproj' | grep -v Pods)
+path=$(find tmp -path '*project.pbxproj' | grep -v Pods)
 bundle_id=$(cat "$path" | grep PRODUCT_BUNDLE_IDENTIFIER | sort -u)
 product_name=$(cat "$path" | grep PRODUCT_NAME | sort -u)
 

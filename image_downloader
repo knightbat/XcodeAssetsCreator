@@ -53,7 +53,7 @@ for i in "${array[@]}"
 done
 
 #find path of Assets.xcassets
-path=$(find output -path '*.xcassets')
+path=$(find tmp -path '*.xcassets')
 
 # copy all image set to xcassets and delete temp files
 cp -Rf *.imageset "$path" && rm -r *.imageset
@@ -87,6 +87,6 @@ convert $icon    -resize 76x76\> Icon-76.0@1x.png
 convert $icon    -resize 152x152\> Icon-76.0@2x.png
 convert $icon    -resize 167x167\> Icon-83.5@2x.png
 
-path=$(find output -path '*.appiconset')
+path=$(find tmp -path '*.appiconset')
 mv Icon-* "$path"
 rm $icon

@@ -18,7 +18,7 @@ if [[ ${#keys[@]} != 1 ]]; then
 
     echo "//created on $(date)" > Localizable.strings
     echo $string >> Localizable.strings
-    path=$(find output -path '*Base.lproj')
+    path=$(find tmp -path '*Base.lproj')
     echo "path $path"
     mv Localizable.strings "$path"
 #remove all warning

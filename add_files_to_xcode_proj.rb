@@ -4,7 +4,7 @@ require 'xcodeproj'
 require 'find'
 
 project_file_paths = []
-Find.find('output') do |path|
+Find.find('tmp') do |path|
   project_file_paths << path if path =~ /.*\.xcodeproj$/
 end
 
