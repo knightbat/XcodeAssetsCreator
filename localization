@@ -10,7 +10,7 @@ json=$1
 string=$(echo ${json} | jq '.locale|keys'| tr -d '[]",')
 
 read -a keys <<< $string
-if [[ ${#keys[@]} != 1 ]]; then
+if [[ ${#keys[@]} == 1 ]]; then
 
     localization_url=$(echo ${json} | jq ".locale.${keys[0]}.ios" | tr -d '"')
     echo "Language downloading from $localization_url"
@@ -19,11 +19,10 @@ if [[ ${#keys[@]} != 1 ]]; then
     echo "//created on $(date)" > Localizable.strings
     echo $string >> Localizable.strings
     path=$(find tmp -path '*Base.lproj')
-    echo "path $path"
     mv Localizable.strings "$path"
 #remove all warning
     ruby add_files_to_xcode_proj.rb Base  >/dev/null 2>/dev/null
 
 else
-  echo "more than 1"
+  echo "more than 1 language"
 fi

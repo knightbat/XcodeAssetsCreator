@@ -1,12 +1,34 @@
 #!/bin/bash
 
+############## replace product name and bundle id #############
+
 path=$(find tmp -path '*project.pbxproj' | grep -v Pods)
 bundle_id=$(cat "$path" | grep PRODUCT_BUNDLE_IDENTIFIER | sort -u)
 product_name=$(cat "$path" | grep PRODUCT_NAME | sort -u)
 
-replace_bundle_id="PRODUCT_BUNDLE_IDENTIFIER = com.test.test;"
-replace_product_name="PRODUCT_NAME = \"Test product\";"
+replace_bundle_id="PRODUCT_BUNDLE_IDENTIFIER = $2;"
+replace_product_name="PRODUCT_NAME = \"$1\";"
 
 
 sed -i -e 's/'"$bundle_id"'/'"$replace_bundle_id"'/g' "$path"
 sed -i -e 's/'"$product_name"'/'"$replace_product_name"'/g' "$path"
+
+############## replace base url #########################
+# getting path
+path=$(find tmp -path '*AppConstants.m' | grep -v Pods)
+
+# line having kBaseUrl string
+url=$(cat "$path" | grep kBaseUrl | sort -u)
+
+
+# replacement url
+replace_url=$3
+
+# extracting url
+url=$(echo $url|grep -Eo 'http://[^ >]+'|head -1 |tr -d '";')
+#getting base url
+url=$(echo $url | cut -d'/' -f3 | cut -d':' -f1)
+echo "replacing $url with $replace_url"
+
+# replacement
+sed -i -e 's/'"$url"'/'"$replace_url"'/g' "$path"

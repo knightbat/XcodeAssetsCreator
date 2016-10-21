@@ -17,14 +17,52 @@ if [[ $1 =~ $regex ]] ; then
     echo "using url $data_url"
     json=$(curl -# $data_url)
 
-    #call image downloader
-    image_string=$(echo ${json} | jq '.images[]'| tr -d '"')
-    app_icon_string=$(echo ${json} | jq '.AppIcon'| tr -d '"')
+    rm -rf tmp
+    mkdir tmp
+    rm -rf output
+    mkdir output
 
-    # ./image_downloader "$image_string" "$app_icon_string"
+    i=0
+    while read line
+    do
+        array[ $i ]="$line"
+        (( i++ ))
+    done < <(ls input)
 
-    #call image localization
-    ./localization "$json"
+    for dir in "${array[@]}"; do
+
+
+      echo "processing $dir"
+      cp -R "input/$dir" "tmp/$dir"
+      dir_lower=$(echo ${dir} | tr '[:upper:]' '[:lower:]')
+
+
+      if [[ $dir_lower == *"admin"* ]]; then
+        echo "admin - $dir"
+        ./change_project_details "admin test" "com.admin.test " "api.test.com"
+      elif [[ $dir_lower == *"client"* ]]; then
+        echo "client - $dir"
+        ./change_project_details "client test" "com.client.test " "api.test.com"
+
+      elif [[ $dir_lower == *"driver"* ]]; then
+        echo "driver - $dir"
+        ./change_project_details "driver test" "com.driver.test " "api.test.com"
+
+      fi
+
+
+      #call image downloader
+      image_string=$(echo ${json} | jq '.images[]'| tr -d '"')
+      app_icon_string=$(echo ${json} | jq '.AppIcon'| tr -d '"')
+      ./image_downloader "$image_string" "$app_icon_string"
+
+      #call image localization
+      ./localization "$json"
+
+
+      mv  "tmp/$dir/" "output/"
+
+    done
 
 else
 

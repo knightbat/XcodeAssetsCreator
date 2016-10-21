@@ -4,12 +4,13 @@
 ####################################### images ########################################################
 #######################################################################################################
 
-# json=$1
-# string=$(echo ${json} | jq '.images[]'| tr -d '"')
-#
+
 # echo "images $json"
 
 read -a array <<< $1
+
+original_path=$(pwd)
+cd /tmp
 
 # loop
 for i in "${array[@]}"
@@ -53,16 +54,19 @@ for i in "${array[@]}"
 done
 
 #find path of Assets.xcassets
+
+cd $original_path
 path=$(find tmp -path '*.xcassets')
 
 # copy all image set to xcassets and delete temp files
-cp -Rf *.imageset "$path" && rm -r *.imageset
+cp -Rf /tmp/*.imageset "$path" && rm -r /tmp/*.imageset
 
 
 #######################################################################################################
 ##################################### App Icon ########################################################
 #######################################################################################################
 
+cd /tmp
 echo "App icon downloading from $2"
 curl -O -# $2
 icon=$(basename "$2")
@@ -87,6 +91,7 @@ convert $icon    -resize 76x76\> Icon-76.0@1x.png
 convert $icon    -resize 152x152\> Icon-76.0@2x.png
 convert $icon    -resize 167x167\> Icon-83.5@2x.png
 
+cd $original_path
 path=$(find tmp -path '*.appiconset')
-mv Icon-* "$path"
-rm $icon
+mv /tmp/Icon-* "$path"
+rm /tmp/$icon
