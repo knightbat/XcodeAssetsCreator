@@ -5,24 +5,67 @@
 ################################ Localization #########################################################
 #######################################################################################################
 
-json=$1
+function create_l10n_file() {
+  #statements
+
+# method to create lang files
+# function variables - $1 $2
+# $1 - language key
+# $2 - if $2 is equal to base the it will create base l10n file
+
+localization_url=$(echo ${json} | jq ".locale.$1.ios" | tr -d '"')
+echo "Language downloading from $localization_url"
+string=$(curl -L -# $localization_url)
+
+echo "//created on $(date)" > Localizable.strings
+echo $string >> Localizable.strings
+
+if [[ $2 == base ]]; then               #case : file is for base
+
+  path=$(find tmp -path '*Base.lproj')    #find path of Base.lproj
+  mv Localizable.strings "$path"          #move file to dir Base.lproj
+
+else                                      #case : file is for other language ie key values (eg : en)
+
+  path=$(find tmp -path '*Base.lproj')    #find path of Base.lproj
+  path=$(dirname "$path")                 #go to parent dirctory
+  mkdir "$path/$1.lproj"                  #create dir <key>.lproj (eg : en.lproj)
+  mv Localizable.strings "$path/$1.lproj" #move file to <key>.lproj
+
+fi
+
+}
+
+
+json=$1 # data from main script
 
 string=$(echo ${json} | jq '.locale|keys'| tr -d '[]",')
 
 read -a keys <<< $string
+
 if [[ ${#keys[@]} == 1 ]]; then
 
-    localization_url=$(echo ${json} | jq ".locale.${keys[0]}.ios" | tr -d '"')
-    echo "Language downloading from $localization_url"
-    string=$(curl -L -# $localization_url)
-
-    echo "//created on $(date)" > Localizable.strings
-    echo $string >> Localizable.strings
-    path=$(find tmp -path '*Base.lproj')
-    mv Localizable.strings "$path"
-#remove all warning
-    ruby add_files_to_xcode_proj.rb Base  >/dev/null 2>/dev/null
+  create_l10n_file ${keys[0]} base
+  #add files to xcode proj and remove all warning
+  ruby add_files_to_xcode_proj.rb Base  >/dev/null 2>/dev/null
 
 else
-  echo "more than 1 language"
+
+langs="" #store all the laguage key
+
+  for key in "${keys[@]}"; do
+
+    create_l10n_file $key         #create files for given key
+    langs="$langs $key"           #update langs string
+
+    if [[ $key == "en" ]]; then   #set en as base
+      create_l10n_file $key base  #create base file
+      langs="$langs Base"
+    fi
+
+  done
+
+  #add files to xcode proj and remove all warning
+  ruby add_files_to_xcode_proj.rb $langs  >/dev/null 2>/dev/null
+
 fi
