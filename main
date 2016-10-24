@@ -9,15 +9,22 @@ regex='(https?|ftp|file)://[-A-Za-z0-9\+&@#/%?=~_|!:,.;]*[-A-Za-z0-9\+&@#/%=~_|]
 if [[ $1 =~ $regex ]] ; then
 
     if ! [[ $(which jq) ]] ; then
-      echo "installing dependency"
+      echo "installing jq"
       brew install jq
+    fi
+
+    if ! [[ $(which xcodeproj) ]] ; then
+      echo "installing xcodeproj"
       sudo gem install xcodeproj
     fi
+
+    brew install bash
 
     echo "using url $data_url"
     json=$(curl -# $data_url)
 
-    rm -rf tmp
+# creating tmp file and clearing output file
+
     mkdir tmp
     rm -rf output
     mkdir output
@@ -31,8 +38,8 @@ if [[ $1 =~ $regex ]] ; then
 
     for dir in "${array[@]}"; do
 
-
-      echo "processing $dir"
+      echo "################### processing $dir ###################"
+      echo copying files
       cp -R "input/$dir" "tmp/$dir"
       dir_lower=$(echo ${dir} | tr '[:upper:]' '[:lower:]')
 
@@ -54,15 +61,20 @@ if [[ $1 =~ $regex ]] ; then
       #call image downloader
       image_string=$(echo ${json} | jq '.images[]'| tr -d '"')
       app_icon_string=$(echo ${json} | jq '.AppIcon'| tr -d '"')
+
       ./image_downloader "$image_string" "$app_icon_string"
 
       #call image localization
       ./localization "$json"
 
+      # call color code generator
+      ./color_code_generator "$json"
 
       mv  "tmp/$dir/" "output/"
-
     done
+
+# remove tmp folder
+    rm -rf tmp
 
 else
 

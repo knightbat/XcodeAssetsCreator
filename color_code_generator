@@ -1,12 +1,41 @@
 #!/bin/bash
 
-hexinput=`echo $1 | tr '[:lower:]' '[:upper:]'` #uppercaseing
-a=`echo $hexinput | cut -c-2`
-b=`echo $hexinput | cut -c3-4`
-c=`echo $hexinput | cut -c5-6`
+json=$1
+path=$(find tmp -path '*AppColor.m' | grep -v Pods)
 
-r=`echo "ibase=16; $a" | bc`
-g=`echo "ibase=16; $b" | bc`
-b=`echo "ibase=16; $c" | bc`
+# storing keys and values to array
 
-echo "[UIColor colorWithRed:$r/255 green:$g/255 blue:$b/255 alpha:1.0];"
+arr=$(echo ${json} | jq '.designDetails[].key'| tr -d '"')
+keys=($arr)
+
+arr=$(echo ${json} | jq '.designDetails[].value'| tr -d '"')
+values=($arr)
+
+# looping through keys
+
+for ((i=0; i < ${#keys[@]}; i++))
+do
+
+
+    hexinput=`echo ${values[$i]} | tr '[:lower:]' '[:upper:]'` #uppercaseing
+    a=`echo $hexinput | cut -c-2`
+    b=`echo $hexinput | cut -c3-4`
+    c=`echo $hexinput | cut -c5-6`
+
+    r=`echo "ibase=16; $a" | bc`
+    g=`echo "ibase=16; $b" | bc`
+    b=`echo "ibase=16; $c" | bc`
+
+  if [[ $r ]];
+   then
+    divr=`echo "scale=4;$r / 255" | bc -l`
+    divg=`echo "scale=4;$g / 255" | bc -l`
+    divb=`echo "scale=4;$b / 255" | bc -l`
+    # generating color code in objc
+    replace_color=$(echo "self.${keys[$i]}=[UIColor colorWithRed:$divr green:$divg blue:$divb alpha:1.0];")
+    # finding line number of the code where the key is present
+    no=$(cat "$path" |grep -n "${keys[$i]}" | cut -f1 -d:)
+    # replacing the line with generated code
+    sed -i -e "${no}s/.*/$replace_color/g" "$path"
+  fi
+done
