@@ -1,0 +1,13 @@
+#!/bin/bash
+url=$1
+# downloading GoogleService-Info.plist (fcm_ios_client_key) and assign to plist
+plist=$(curl -0 -# "$url")
+
+# crate file GoogleService-Info.plist and copy data from plist
+echo ${plist} > GoogleService-Info.plist
+
+# find exact path of GoogleService-Info.plist in project
+path=$(find tmp -path '*GoogleService-Info.plist')
+
+# move GoogleService-Info.plist from url to its original path
+mv GoogleService-Info.plist "$path"

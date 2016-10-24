@@ -47,14 +47,17 @@ if [[ $1 =~ $regex ]] ; then
       if [[ $dir_lower == *"admin"* ]]; then
         echo "admin - $dir"
         ./change_project_details "admin test" "com.admin.test " "api.test.com"
+        ./fcm_plist_changer "$(echo ${json} | jq '.files.fcm_ios_admin_key'| tr -d '"')"
 
       elif [[ $dir_lower == *"client"* ]]; then
         echo "client - $dir"
         ./change_project_details "client test" "com.client.test " "api.test.com"
+        ./fcm_plist_changer  "$(echo ${json} | jq '.files.fcm_ios_client_key'| tr -d '"')"
 
       elif [[ $dir_lower == *"driver"* ]]; then
         echo "driver - $dir"
         ./change_project_details "driver test" "com.driver.test " "api.test.com"
+        ./fcm_plist_changer "$(echo ${json} | jq '.files.fcm_ios_driver_key'| tr -d '"')"
 
       fi
 
