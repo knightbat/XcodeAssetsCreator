@@ -10,8 +10,8 @@ replace_bundle_id="PRODUCT_BUNDLE_IDENTIFIER = $2;"
 replace_product_name="PRODUCT_NAME = \"$1\";"
 
 
-sed -i -e 's/'"$bundle_id"'/'"$replace_bundle_id"'/g' "$path"
-sed -i -e 's/'"$product_name"'/'"$replace_product_name"'/g' "$path"
+sed -i '' -e 's/'"$bundle_id"'/'"$replace_bundle_id"'/g' "$path"
+sed -i '' -e 's/'"$product_name"'/'"$replace_product_name"'/g' "$path"
 
 ############## replace base url #########################
 # getting path
@@ -31,4 +31,4 @@ url=$(echo $url | cut -d'/' -f3 | cut -d':' -f1)
 echo "replacing $url with $replace_url"
 
 # replacement
-sed -i -e 's/'"$url"'/'"$replace_url"'/g' "$path"
+sed -i '' -e 's/'"$url"'/'"$replace_url"'/g' "$path"

@@ -36,6 +36,6 @@ do
     # finding line number of the code where the key is present
     no=$(cat "$path" |grep -n "${keys[$i]}" | cut -f1 -d:)
     # replacing the line with generated code
-    sed -i -e "${no}s/.*/$replace_color/g" "$path"
+    sed -i '' -e "${no}s/.*/$replace_color/g" "$path"
   fi
 done

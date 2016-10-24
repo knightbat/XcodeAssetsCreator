@@ -18,15 +18,15 @@ if [[ $1 =~ $regex ]] ; then
       sudo gem install xcodeproj
     fi
 
-    brew install bash
+    # brew install bash
 
     echo "using url $data_url"
     json=$(curl -# $data_url)
 
 # creating tmp file and clearing output file
 
+    rm -rf output tmp
     mkdir tmp
-    rm -rf output
     mkdir output
 
     i=0
@@ -47,6 +47,7 @@ if [[ $1 =~ $regex ]] ; then
       if [[ $dir_lower == *"admin"* ]]; then
         echo "admin - $dir"
         ./change_project_details "admin test" "com.admin.test " "api.test.com"
+
       elif [[ $dir_lower == *"client"* ]]; then
         echo "client - $dir"
         ./change_project_details "client test" "com.client.test " "api.test.com"
@@ -58,14 +59,14 @@ if [[ $1 =~ $regex ]] ; then
       fi
 
 
-      #call image downloader
-      image_string=$(echo ${json} | jq '.images[]'| tr -d '"')
-      app_icon_string=$(echo ${json} | jq '.AppIcon'| tr -d '"')
-
-      ./image_downloader "$image_string" "$app_icon_string"
-
-      #call image localization
-      ./localization "$json"
+      # #call image downloader
+      # image_string=$(echo ${json} | jq '.images[]'| tr -d '"')
+      # app_icon_string=$(echo ${json} | jq '.AppIcon'| tr -d '"')
+      #
+      # ./image_downloader "$image_string" "$app_icon_string"
+      #
+      # #call image localization
+      # ./localization "$json"
 
       # call color code generator
       ./color_code_generator "$json"
