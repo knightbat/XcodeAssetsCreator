@@ -15,8 +15,6 @@ values=($arr)
 
 for ((i=0; i < ${#keys[@]}; i++))
 do
-
-
     hexinput=`echo ${values[$i]} | tr '[:lower:]' '[:upper:]'` #uppercaseing
     a=`echo $hexinput | cut -c-2`
     b=`echo $hexinput | cut -c3-4`
@@ -35,7 +33,10 @@ do
     replace_color=$(echo "self.${keys[$i]}=[UIColor colorWithRed:$divr green:$divg blue:$divb alpha:1.0];")
     # finding line number of the code where the key is present
     no=$(cat "$path" |grep -n "${keys[$i]}" | cut -f1 -d:)
+
+    if [[ $no ]]; then #if no is present
+      sed -i -e "${no}s/.*/${replace_color}/g" "$path"
+    fi
     # replacing the line with generated code
-    sed -i '' -e "${no}s/.*/$replace_color/g" "$path"
   fi
 done

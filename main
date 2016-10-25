@@ -43,20 +43,30 @@ if [[ $1 =~ $regex ]] ; then
       cp -R "input/$dir" "tmp/$dir"
       dir_lower=$(echo ${dir} | tr '[:upper:]' '[:lower:]')
 
+      base_url="$(echo ${json} | jq '.baseUrl'| tr -d '"')"
 
       if [[ $dir_lower == *"admin"* ]]; then
+        
         echo "admin - $dir"
-        ./change_project_details "admin test" "com.admin.test " "api.test.com"
+        bundle_id="$(echo ${json} | jq '.iosAdminBundleId'| tr -d '"')"
+        app_name="$(echo ${json} | jq '.AdminAppName'| tr -d '"')"
+        ./change_project_details $app_name $bundle_id $base_url
         ./fcm_plist_changer "$(echo ${json} | jq '.files.fcm_ios_admin_key'| tr -d '"')"
 
       elif [[ $dir_lower == *"client"* ]]; then
+
         echo "client - $dir"
-        ./change_project_details "client test" "com.client.test " "api.test.com"
+        bundleId="$(echo ${json} | jq '.iosClinetBundleId'| tr -d '"')"
+        app_name="$(echo ${json} | jq '.clientAppName'| tr -d '"')"
+        ./change_project_details $app_name $bundle_id $base_url
         ./fcm_plist_changer  "$(echo ${json} | jq '.files.fcm_ios_client_key'| tr -d '"')"
 
       elif [[ $dir_lower == *"driver"* ]]; then
+
         echo "driver - $dir"
-        ./change_project_details "driver test" "com.driver.test " "api.test.com"
+        bundleId="$(echo ${json} | jq '.iosDriverBundleId'| tr -d '"')"
+        app_name="$(echo ${json} | jq '.driverAppName'| tr -d '"')"
+        ./change_project_details $app_name $bundle_id $base_url
         ./fcm_plist_changer "$(echo ${json} | jq '.files.fcm_ios_driver_key'| tr -d '"')"
 
       fi
