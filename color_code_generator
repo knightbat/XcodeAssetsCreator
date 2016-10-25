@@ -35,7 +35,7 @@ do
     no=$(cat "$path" |grep -n "${keys[$i]}" | cut -f1 -d:)
 
     if [[ $no ]]; then #if no is present
-      sed -i -e "${no}s/.*/${replace_color}/g" "$path"
+      sed -i '' -e "${no}s/.*/${replace_color}/g" "$path"
     fi
     # replacing the line with generated code
   fi
