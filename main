@@ -13,9 +13,13 @@ if [[ $1 =~ $regex ]] ; then
       brew install jq
     fi
 
-    if ! [[ $(which xcodeproj) ]] ; then
+    if [[ $(which ruby) == "/usr/bin/ruby" ]] ; then
       echo "installing xcodeproj"
-      sudo gem install xcodeproj
+      gem install xcodeproj
+      echo "installing fastlane"
+      gem install fastlane
+      echo "installing cocoapods"
+      gem install cocoapods
     fi
 
     # brew install bash
@@ -46,27 +50,27 @@ if [[ $1 =~ $regex ]] ; then
       base_url="$(echo ${json} | jq '.baseUrl'| tr -d '"')"
 
       if [[ $dir_lower == *"admin"* ]]; then
-        
+
         echo "admin - $dir"
         bundle_id="$(echo ${json} | jq '.iosAdminBundleId'| tr -d '"')"
         app_name="$(echo ${json} | jq '.AdminAppName'| tr -d '"')"
-        ./change_project_details $app_name $bundle_id $base_url
+        ./change_project_details "$app_name" "$bundle_id" "$base_url"
         ./fcm_plist_changer "$(echo ${json} | jq '.files.fcm_ios_admin_key'| tr -d '"')"
 
       elif [[ $dir_lower == *"client"* ]]; then
 
         echo "client - $dir"
-        bundleId="$(echo ${json} | jq '.iosClinetBundleId'| tr -d '"')"
+        bundle_id="$(echo ${json} | jq '.iosClinetBundleId'| tr -d '"')"
         app_name="$(echo ${json} | jq '.clientAppName'| tr -d '"')"
-        ./change_project_details $app_name $bundle_id $base_url
+        ./change_project_details "$app_name" "$bundle_id" "$base_url"
         ./fcm_plist_changer  "$(echo ${json} | jq '.files.fcm_ios_client_key'| tr -d '"')"
 
       elif [[ $dir_lower == *"driver"* ]]; then
 
         echo "driver - $dir"
-        bundleId="$(echo ${json} | jq '.iosDriverBundleId'| tr -d '"')"
+        bundle_id="$(echo ${json} | jq '.iosDriverBundleId'| tr -d '"')"
         app_name="$(echo ${json} | jq '.driverAppName'| tr -d '"')"
-        ./change_project_details $app_name $bundle_id $base_url
+        ./change_project_details "$app_name" "$bundle_id" "$base_url"
         ./fcm_plist_changer "$(echo ${json} | jq '.files.fcm_ios_driver_key'| tr -d '"')"
 
       fi
