@@ -55,7 +55,7 @@ done
 
 #find path of Assets.xcassets
 
-cd $original_path
+cd "$original_path"
 path=$(find tmp -path '*.xcassets')
 
 # copy all image set to xcassets and delete temp files
@@ -91,7 +91,7 @@ convert $icon    -resize 76x76\! Icon-76.0@1x.png
 convert $icon    -resize 152x152\! Icon-76.0@2x.png
 convert $icon    -resize 167x167\! Icon-83.5@2x.png
 
-cd $original_path
+cd "$original_path"
 path=$(find tmp -path '*.appiconset')
 mv /tmp/Icon-* "$path"
 rm /tmp/$icon
