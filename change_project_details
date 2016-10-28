@@ -23,10 +23,12 @@ url=$(cat "$path" | grep kBaseUrl | sort -u)
 
 # replacement url
 replace_url=$3
+#getting absolute url
+replace_url=$(echo $replace_url | cut -d'/' -f3 | cut -d':' -f1)
 
 # extracting url
 url=$(echo $url|grep -Eo 'http://[^ >]+'|head -1 |tr -d '";')
-#getting base url
+#getting absolute url
 url=$(echo $url | cut -d'/' -f3 | cut -d':' -f1)
 echo "replacing $url with $replace_url"
 
